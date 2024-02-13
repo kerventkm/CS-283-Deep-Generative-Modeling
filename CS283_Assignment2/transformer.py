@@ -20,9 +20,11 @@ class TransformerBlock(nn.Module):
         self.w2 = nn.Linear(m, d)
 
         # task define the dropout
+        self.dropout = nn.Dropout(dropout)
 
 
         # task define the layer normalization
+        self.layer_norm = nn.LayerNorm(d)
 
       
 
@@ -40,19 +42,29 @@ class TransformerBlock(nn.Module):
         seq_len, batch_size, embed_dim = x.shape
 
         # task implement scaled dot-product attention
-
+        Q = self.wq(x)
+        K = self.wk(x)
+        V = self.wv(x)
+        
+        z = self.dropoutatt(self.wc(F.softmax(Q @ K.transpose(2, 1) / (embed_dim)**0.5, dim=1)@V))
+       
         # task implement residual connection
+        z = z+x
 
         # task implement the dropout
+        z = self.dropout(z)
 
         # task implement the layer normalization
+        x1 = self.layer_norm(z)
 
 
         # task implement the posiion-wise feed forward network
+        z1 = self.w2(self.dropoutfc(F.relu(self.w1(x1))))
+        z1 = z1+x1
+        out = self.layer_norm(z1)
 
         # Hint: Writing efficient code is almost as important as writing correct code in ML.
         #       Avoid writing for-loops! Consider using the batch matrix multiplication operator torch.bmm
-        raise NotImplementedError('Implement a transformer block')
 
         return out
 
