@@ -18,13 +18,13 @@ def train_DCGAN(G, D, optim_G, optim_D, loss_f, train_loader, num_epochs, device
             # ========================
             # train with real data
             img = img.to(device)
-            real_score = D(img)
+            real_score = D(img).squeeze()
             d_loss_real = loss_f(real_score, real_label)
 
             # train with fake data
             noise = torch.randn(batch_size, 100, device=device)
             img_fake = G(noise)
-            fake_score = D(img_fake)
+            fake_score = D(img_fake).squeeze()
             d_loss_fake = loss_f(fake_score, fake_label)
 
             # update D
@@ -38,7 +38,7 @@ def train_DCGAN(G, D, optim_G, optim_D, loss_f, train_loader, num_epochs, device
             # ========================
             noise = torch.randn(batch_size, 100, device=device)
             img_fake = G(noise)
-            g_score = D(img_fake)
+            g_score = D(img_fake).squeeze()
             g_loss = loss_f(g_score, real_label)
 
             # update G
